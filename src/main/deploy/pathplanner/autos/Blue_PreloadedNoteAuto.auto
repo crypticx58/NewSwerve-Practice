@@ -1,0 +1,25 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 0.9845059690119385,
+      "y": 7.007220871584601
+    },
+    "rotation": -179.44374777291932
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "Shoot"
+          }
+        }
+      ]
+    }
+  },
+  "folder": "PreloadedNoteAutos",
+  "choreoAuto": false
+}

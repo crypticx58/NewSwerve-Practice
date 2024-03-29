@@ -2,16 +2,12 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix6.StatusSignal;
-import com.ctre.phoenix6.configs.FeedbackConfigs;
-import com.ctre.phoenix6.configs.MotionMagicConfigs;
-import com.ctre.phoenix6.configs.MotorOutputConfigs;
-import com.ctre.phoenix6.configs.Slot0Configs;
-import com.ctre.phoenix6.configs.TalonFXConfigurator;
+import com.ctre.phoenix6.configs.*;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
+import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -32,10 +28,12 @@ public class SwerveModule {
     private final SwerveModuleConstants swerveModuleConstants;
     private final StatusSignal<Double> driveMotorVelocityRotationsPerSec;
     private final StatusSignal<Double> driveMotorRotations;
+    private final StatusSignal<Double> driveMotorAppliedVoltage;
     private final PIDController turnPIDController;
     //private final MotionMagicVelocityVoltage motionMagicVelocityVoltage;
     private Rotation2d lastAngle = new Rotation2d(0);
     private final TalonFXConfigurator configurator;
+    private final VelocityVoltage driveMotorVelocity = new VelocityVoltage(0);
     public SwerveModule(SwerveModuleConstants swerveModuleConstants){
         // Drive motor setup
         driveMotor = new TalonFX(swerveModuleConstants.driveMotorId);
@@ -56,34 +54,37 @@ public class SwerveModule {
         driveMotorConfigurator.apply(driveMotorFeedbackConfigs);
 
         //Motion magic stuff for drive motor
-        // final MotionMagicConfigs motionMagicConfigs = new MotionMagicConfigs();
-        // motionMagicConfigs.MotionMagicCruiseVelocity = 800;
-        // motionMagicConfigs.MotionMagicAcceleration = 1600;
-        // motionMagicConfigs.MotionMagicJerk = 1600;
+        //  final MotionMagicConfigs motionMagicConfigs = new MotionMagicConfigs();
+        //  motionMagicConfigs.MotionMagicCruiseVelocity = 8000;
+        //  motionMagicConfigs.MotionMagicAcceleration = 16000;
+        //  motionMagicConfigs.MotionMagicJerk = 16000;
 
-        // Slot0Configs slot0Configs = new Slot0Configs();
-        // slot0Configs.kS = 0.25;
-        // slot0Configs.kV = 1.5;
-        // slot0Configs.kP = 3;
-        // slot0Configs.kI = 0;
-        // slot0Configs.kD = 0;
+        Slot0Configs slot0Configs = new Slot0Configs();
+        // //  slot0Configs.kS = 0.38446;
+        // //  slot0Configs.kV = 0.74459;
+        // //  slot0Configs.kA = 0.17773;
+         slot0Configs.kP = 2.35;
+         slot0Configs.kI = 0;
+         slot0Configs.kD = 0;
 
         // SmartDashboard.putNumber("KS", 0.25);
         // SmartDashboard.putNumber("KV", 1.5);
-        // SmartDashboard.putNumber("KP", 3);
-        // SmartDashboard.putNumber("KI", 0);
-        // SmartDashboard.putNumber("KD", 0);
+        SmartDashboard.putNumber("KP", 2.35);
+        SmartDashboard.putNumber("KI", 0);
+        SmartDashboard.putNumber("KD", 0);
 
-        // motionMagicVelocityVoltage = new MotionMagicVelocityVoltage(0);
-        // motionMagicVelocityVoltage.withSlot(0);
+        //  motionMagicVelocityVoltage = new MotionMagicVelocityVoltage(0);
+        //  motionMagicVelocityVoltage.withSlot(0);
 
-        // driveMotorConfigurator.apply(slot0Configs);
-        // driveMotorConfigurator.apply(motionMagicConfigs);
+        driveMotorConfigurator.apply(slot0Configs);
+        //  driveMotorConfigurator.apply(motionMagicConfigs);
 
         // Turn motor setup
         turnMotor = new TalonSRX(swerveModuleConstants.turnMotorId);
         turnMotor.setInverted(swerveModuleConstants.turnMotorInverted);
         turnMotor.setNeutralMode(NeutralMode.Brake);
+        driveMotorAppliedVoltage = driveMotor.getMotorVoltage();
+
         //turnMotor.configSelectedFeedbackSensor(TalonSRXFeedbackDevice.CTRE_MagEncoder_Absolute,0,0); //Absolute encoder, 4096 tics per rotor rotation
         //turnMotor.configFeedbackNotContinuous(false, 0); // 4096 => 0
 
@@ -127,14 +128,14 @@ public class SwerveModule {
         }
         //System.out.println(desiredState);
 
-        // Slot0Configs slot0Configs = new Slot0Configs();
+        Slot0Configs slot0Configs = new Slot0Configs();
         // slot0Configs.kS = SmartDashboard.getNumber("KS", 0);
         // slot0Configs.kV = SmartDashboard.getNumber("KV", 0);
-        // slot0Configs.kP = SmartDashboard.getNumber("KP", 0);
-        // slot0Configs.kI = SmartDashboard.getNumber("KI", 0);
-        // slot0Configs.kD = SmartDashboard.getNumber("KD", 0);
+        slot0Configs.kP = SmartDashboard.getNumber("KP", 0);
+        slot0Configs.kI = SmartDashboard.getNumber("KI", 0);
+        slot0Configs.kD = SmartDashboard.getNumber("KD", 0);
 
-        // configurator.apply(slot0Configs);
+        configurator.apply(slot0Configs);
 
         desiredState = SwerveModuleState.optimize(desiredState, Rotation2d.fromDegrees(getAngleDeg()));
         //System.out.println("Speed meters/sec: "+desiredState.speedMetersPerSecond+"||| Speed rotations/sec: "+convertMetersPerSec2RotationsPerSec(desiredState.speedMetersPerSecond));
@@ -143,6 +144,12 @@ public class SwerveModule {
         turnMotor.set(ControlMode.PercentOutput, turnPIDController.calculate(Units.degreesToRadians(getAngleDeg()), desiredState.angle.getRadians()));
 
         lastAngle = desiredState.angle;
+    }
+    public void setVoltage(double volts){
+        driveMotor.setVoltage(volts);
+    }
+    public double getAppliedVoltage(){
+        return driveMotorAppliedVoltage.refresh().getValue();
     }
     public void stopMotors(){
         driveMotor.setControl(new DutyCycleOut(0));

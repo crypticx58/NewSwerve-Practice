@@ -1,31 +1,17 @@
 package frc.robot.commands;
 
-import edu.wpi.first.math.filter.SlewRateLimiter;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.Constants;
+import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Utils.InputsManager.SwerveInputsManager;
 import frc.robot.subsystems.SwerveSubsystem;
 
-import java.util.function.Supplier;
 
-
-public class SwerveJoystickCmd extends CommandBase {
+public class SwerveJoystickCmd extends Command {
     private final SwerveSubsystem swerveSubsystem = SwerveSubsystem.getInstance();
-    private final Supplier<Double> xSpeedFunc, ySpeedFunc, turnSpeedFunc;
-    private final Supplier<Boolean> fieldOrientatedFunc;
-    private final SlewRateLimiter xRateLimiter, yRateLimiter;
+    private final SwerveInputsManager swerveInputsManager;
     
-    public SwerveJoystickCmd(Supplier<Double> xSpeedFunc, Supplier<Double> ySpeedFunc,
-                             Supplier<Double> turnSpeedFunc, Supplier<Boolean> fieldOrientatedFunc) {
-       this.xSpeedFunc = xSpeedFunc;
-       this.ySpeedFunc = ySpeedFunc;
-       this.turnSpeedFunc = turnSpeedFunc;
-       this.fieldOrientatedFunc = fieldOrientatedFunc;
-       
-       this.xRateLimiter = new SlewRateLimiter(0.85);
-       this.yRateLimiter = new SlewRateLimiter(0.85);
-       ///this.turnRateLimiter = new SlewRateLimiter(0.5);
+    public SwerveJoystickCmd(SwerveInputsManager swerveInputsManager) {
+       this.swerveInputsManager = swerveInputsManager;
        addRequirements(this.swerveSubsystem);
     }
 
@@ -43,27 +29,27 @@ public class SwerveJoystickCmd extends CommandBase {
      */
     @Override
     public void execute() {
-        double xSpeed = xSpeedFunc.get() * 0.4;
-        double ySpeed = ySpeedFunc.get() * 0.4;
-        double turnSpeed = turnSpeedFunc.get() * 0.75;
-
-        xSpeed = Math.abs(xSpeed)<Constants.IOConstants.kDeadband?0:xSpeed;
-        ySpeed = Math.abs(ySpeed)<Constants.IOConstants.kDeadband?0:ySpeed;
-        turnSpeed = Math.abs(turnSpeed)<Constants.IOConstants.kDeadband?0:turnSpeed;
-
-        xSpeed = xRateLimiter.calculate(xSpeed) * Constants.OperatorConstants.kTeleDriveMaxSpeedMetersPerSecond;
-        ySpeed = yRateLimiter.calculate(ySpeed) * Constants.OperatorConstants.kTeleDriveMaxSpeedMetersPerSecond;
-        //turnSpeed = turnRateLimiter.calculate(turnSpeed) * Constants.OperatorConstants.kTeleDriveMaxAngularSpeedRadiansPerSecond;
-
-        ChassisSpeeds chassisSpeeds;
-        if (fieldOrientatedFunc.get()){
-            chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, turnSpeed, swerveSubsystem.getHeadingRotation2d());
-        } else{
-            chassisSpeeds = new ChassisSpeeds(xSpeed, ySpeed, turnSpeed);
-        }
-        
-        SwerveModuleState[] swerveModuleStates = Constants.PhysicalConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
-
+//        double xSpeed = xSpeedFunc.get() * 0.4;
+//        double ySpeed = ySpeedFunc.get() * 0.4;
+//        double turnSpeed = turnSpeedFunc.get() * 0.75;
+//
+//        xSpeed = Math.abs(xSpeed)<Constants.IOConstants.kDeadband?0:xSpeed;
+//        ySpeed = Math.abs(ySpeed)<Constants.IOConstants.kDeadband?0:ySpeed;
+//        turnSpeed = Math.abs(turnSpeed)<Constants.IOConstants.kDeadband?0:turnSpeed;
+//
+//        xSpeed = xRateLimiter.calculate(xSpeed) * Constants.OperatorConstants.kTeleDriveMaxSpeedMetersPerSecond;
+//        ySpeed = yRateLimiter.calculate(ySpeed) * Constants.OperatorConstants.kTeleDriveMaxSpeedMetersPerSecond;
+//        //turnSpeed = turnRateLimiter.calculate(turnSpeed) * Constants.OperatorConstants.kTeleDriveMaxAngularSpeedRadiansPerSecond;
+//
+//        ChassisSpeeds chassisSpeeds;
+//        if (fieldOrientatedFunc.get()){
+//            chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, turnSpeed, swerveSubsystem.getHeadingRotation2d());
+//        } else{
+//            chassisSpeeds = new ChassisSpeeds(xSpeed, ySpeed, turnSpeed);
+//        }
+//
+//        SwerveModuleState[] swerveModuleStates = Constants.PhysicalConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
+        SwerveModuleState[] swerveModuleStates = swerveInputsManager.getSwerveModuleStates();
         swerveSubsystem.setModuleStates(swerveModuleStates);
     }
 

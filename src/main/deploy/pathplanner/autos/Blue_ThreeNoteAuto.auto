@@ -1,0 +1,79 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 1.4389491636126137,
+      "y": 4.0606698356253865
+    },
+    "rotation": 0.0
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "PositionAndShootSpeaker"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "PathfindToCenterNote"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "AutoIntake"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "PositionAndShootSpeaker"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "PathfindToMiddleNote"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "AutoIntake"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "PositionAndShootSpeaker"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "PathfindToWallNote"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "AutoIntake"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "PositionAndShootSpeaker"
+          }
+        }
+      ]
+    }
+  },
+  "folder": "ThreeNoteAutos",
+  "choreoAuto": false
+}

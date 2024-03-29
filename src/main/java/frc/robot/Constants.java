@@ -6,11 +6,16 @@
 package frc.robot;
 
 import com.ctre.phoenix6.signals.InvertedValue;
-
-import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.subsystems.SwerveModuleConstants;
+
+import java.util.List;
+import java.util.Optional;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
@@ -68,6 +73,7 @@ public final class Constants {
 
     public static class OperatorConstants {
         public static final int DRIVER_CONTROLLER_PORT = 0;
+        public static final int MECHANISM_CONTROLLER_PORT = 1;
         public static double kTeleDriveMaxAngularSpeedRadiansPerSecond = 1;
         public static double kTeleDriveMaxSpeedMetersPerSecond = 1.15; //Test values
         public static double kTeleDriveMaxAccelerationUnitsPerSecond = 0.75; //Tst Values
@@ -91,5 +97,229 @@ public final class Constants {
 
     public static class IntakeConstants {
         public static final double noteIdleDistanceInches = 0.5;
+    }
+    public  static class FieldConstants{
+        public enum BlueAllianceNotes{
+            CenterNote(new Pose2d(2.9,4.1, Rotation2d.fromDegrees(0))),
+            MiddleNote(new Pose2d(2.9,5.55, Rotation2d.fromDegrees(0))),
+            wallNote(new Pose2d(2.9,7, Rotation2d.fromDegrees(0)));
+            public final Pose2d pose2d;
+            BlueAllianceNotes(Pose2d pose){
+                this.pose2d = pose;
+            }
+        }
+        public enum RedAllianceNotes{
+            CenterNote(new Pose2d(13.67,0, Rotation2d.fromDegrees(180))),
+            MiddleNote(new Pose2d(13.67,0, Rotation2d.fromDegrees(180))),
+            wallNote(new Pose2d(13.67,0, Rotation2d.fromDegrees(180)));
+            public final Pose2d pose2d;
+            RedAllianceNotes(Pose2d pose){
+                this.pose2d = pose;
+            }
+        }
+
+        public enum MiddleFieldNotes{
+            TopNote(new Pose2d(8.29,7.44, new Rotation2d())),
+            MiddleTopNote(new Pose2d(8.29,5.77, new Rotation2d())),
+            MiddleNote(new Pose2d(8.29,4.11, new Rotation2d())),
+            MiddleBottomNote(new Pose2d(8.29,2.44, new Rotation2d())),
+            BottomNote(new Pose2d(8.29,0.77, new Rotation2d()));
+            public final Pose2d pose2d;
+            MiddleFieldNotes(Pose2d pose){
+                this.pose2d = pose;
+            }
+        }
+        public static Pose2d getAllianceCenterNotePose(){
+            Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
+            if (alliance.isPresent()){
+                if (alliance.get() == DriverStation.Alliance.Blue) {
+                    return BlueAllianceNotes.CenterNote.pose2d;
+                } else {
+                    return RedAllianceNotes.CenterNote.pose2d;
+                }
+            }
+            return BlueAllianceNotes.CenterNote.pose2d;
+        }
+        public static Pose2d getAllianceMiddleNotePose(){
+            Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
+            if (alliance.isPresent()){
+                if (alliance.get() == DriverStation.Alliance.Blue) {
+                    return BlueAllianceNotes.MiddleNote.pose2d;
+                } else {
+                    return RedAllianceNotes.MiddleNote.pose2d;
+                }
+            }
+            return BlueAllianceNotes.MiddleNote.pose2d;
+        }
+        public static Pose2d getAllianceWallNotePose(){
+            Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
+            if (alliance.isPresent()){
+                if (alliance.get() == DriverStation.Alliance.Blue) {
+                    return BlueAllianceNotes.wallNote.pose2d;
+                } else {
+                    return RedAllianceNotes.wallNote.pose2d;
+                }
+            }
+            return BlueAllianceNotes.wallNote.pose2d;
+        }
+    }
+    public  static class VisionConstants{
+        public static final double optimalShootRangeSpeaker = 5;
+        public static final AprilTagFieldLayout aprilTagFieldLayout = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
+        public enum BlueAllianceTargetIds{
+            CenterSpeaker(7),
+            LeftSpeaker(8),
+            Amp(6),
+            RightFeed(9),
+            LeftFeed(10);
+            public final int fiducialID;
+            BlueAllianceTargetIds(int fiducialID){
+                this.fiducialID = fiducialID;
+            }
+        }
+        public enum RedAllianceTargetIds{
+            CenterSpeaker(4), // switch these (Supposed to be 4)
+            RightSpeaker(3), // switch these
+            Amp(5),
+            RightFeed(1),
+            LeftFeed(2);
+            public final int fiducialID;
+            RedAllianceTargetIds(int fiducialID){
+                this.fiducialID = fiducialID;
+            }
+        }
+        public enum BlueAllianceTargetPoses{
+            Speaker(aprilTagFieldLayout.getTagPose(BlueAllianceTargetIds.CenterSpeaker.fiducialID).get()
+                    .transformBy(new Transform3d(
+                            new Translation3d(0, 0, Units.inchesToMeters(36)),
+                            new Rotation3d(0,0,0)
+                    ))),
+            Amp(aprilTagFieldLayout.getTagPose(BlueAllianceTargetIds.Amp.fiducialID).get()
+                    .transformBy(new Transform3d(
+                            new Translation3d(0, 0, -Units.inchesToMeters(8)),
+                            new Rotation3d(0,0,0)
+                    ))),
+            Feed(aprilTagFieldLayout.getTagPose(BlueAllianceTargetIds.RightFeed.fiducialID).get()
+                    .transformBy(new Transform3d(
+                    new Translation3d(0, 0, 0),
+                            new Rotation3d(0,0,0)
+                    )));
+            final Pose3d targetPose;
+            BlueAllianceTargetPoses(Pose3d targetPose){
+                this.targetPose = targetPose;
+            }
+        }
+        public enum RedAllianceTargetPoses{
+            Speaker(aprilTagFieldLayout.getTagPose(RedAllianceTargetIds.CenterSpeaker.fiducialID).get()
+                    .transformBy(new Transform3d(
+                            new Translation3d(0, 0, Units.inchesToMeters(36)),
+                            new Rotation3d(0,0,0)
+                    ))),
+            Amp(aprilTagFieldLayout.getTagPose(RedAllianceTargetIds.Amp.fiducialID).get()
+                    .transformBy(new Transform3d(
+                            new Translation3d(0, 0, -Units.inchesToMeters(8)),
+                            new Rotation3d(0,0,0)
+                    ))),
+            Feed(aprilTagFieldLayout.getTagPose(RedAllianceTargetIds.RightFeed.fiducialID).get()
+                    .transformBy(new Transform3d(
+                    new Translation3d(0, 0, 0),
+                            new Rotation3d(0,0,0)
+                    )));
+            public final Pose3d targetPose;
+            RedAllianceTargetPoses(Pose3d targetPose){
+                this.targetPose = targetPose;
+            }
+        }
+        public static List<Integer> getSpeakerIdsForAlliance(){
+            return List.of(VisionConstants.getCenterSpeakerIdForAlliance(), VisionConstants.getOffsetSpeakerIdForAlliance());
+        }
+        public static int getCenterSpeakerIdForAlliance(){
+            Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
+            if (alliance.isPresent()){
+                if (alliance.get() == DriverStation.Alliance.Blue) {
+                    return BlueAllianceTargetIds.CenterSpeaker.fiducialID;
+                } else {
+                    return RedAllianceTargetIds.CenterSpeaker.fiducialID;
+                }
+            }
+            return BlueAllianceTargetIds.CenterSpeaker.fiducialID;
+        }
+        public static int getOffsetSpeakerIdForAlliance(){
+            Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
+            if (alliance.isPresent()){
+                if (alliance.get() == DriverStation.Alliance.Blue) {
+                    return BlueAllianceTargetIds.LeftSpeaker.fiducialID;
+                } else {
+                    return RedAllianceTargetIds.RightSpeaker.fiducialID;
+                }
+            }
+            return BlueAllianceTargetIds.LeftSpeaker.fiducialID;
+        }
+        public static int getAmpIdForAlliance(){
+            Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
+            if (alliance.isPresent()){
+                if (alliance.get() == DriverStation.Alliance.Blue) {
+                    return BlueAllianceTargetIds.Amp.fiducialID;
+                } else {
+                    return RedAllianceTargetIds.Amp.fiducialID;
+                }
+            }
+            return BlueAllianceTargetIds.Amp.fiducialID;
+        }
+        public static int getRigtFeedIdForAlliance(){
+            Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
+            if (alliance.isPresent()){
+                if (alliance.get() == DriverStation.Alliance.Blue) {
+                    return BlueAllianceTargetIds.RightFeed.fiducialID;
+                } else {
+                    return RedAllianceTargetIds.RightFeed.fiducialID;
+                }
+            }
+            return BlueAllianceTargetIds.RightFeed.fiducialID;
+        }
+        public static int getLeftFeedIdForAlliance(){
+            Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
+            if (alliance.isPresent()){
+                if (alliance.get() == DriverStation.Alliance.Blue) {
+                    return BlueAllianceTargetIds.LeftFeed.fiducialID;
+                } else {
+                    return RedAllianceTargetIds.LeftFeed.fiducialID;
+                }
+            }
+            return BlueAllianceTargetIds.LeftFeed.fiducialID;
+        }
+        public static Pose3d getSpeakerTargetPoseForAlliance(){
+            Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
+            if (alliance.isPresent()){
+                if (alliance.get() == DriverStation.Alliance.Blue) {
+                    return BlueAllianceTargetPoses.Speaker.targetPose;
+                } else {
+                    return RedAllianceTargetPoses.Speaker.targetPose;
+                }
+            }
+            return BlueAllianceTargetPoses.Speaker.targetPose;
+        }
+        public static Pose3d getAmpTargetPoseForAlliance(){
+            Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
+            if (alliance.isPresent()){
+                if (alliance.get() == DriverStation.Alliance.Blue) {
+                    return BlueAllianceTargetPoses.Amp.targetPose;
+                } else {
+                    return RedAllianceTargetPoses.Amp.targetPose;
+                }
+            }
+            return BlueAllianceTargetPoses.Amp.targetPose;
+        }
+        public static Pose3d getFeedTargetPoseForAlliance(){
+            Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
+            if (alliance.isPresent()){
+                if (alliance.get() == DriverStation.Alliance.Blue) {
+                    return BlueAllianceTargetPoses.Feed.targetPose;
+                } else {
+                    return RedAllianceTargetPoses.Feed.targetPose;
+                }
+            }
+            return BlueAllianceTargetPoses.Feed.targetPose;
+        }
     }
 }
