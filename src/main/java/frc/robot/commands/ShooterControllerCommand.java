@@ -27,7 +27,7 @@ public class ShooterControllerCommand extends Command {
 
     @Override
     public void execute() {
-        double interfaceStrength = interfaceFunc.get()?0.45:0;
+        double interfaceStrength = interfaceFunc.get()?1:0;
         double pivotStrength = Math.abs(pivotFunc.get())<=0.15?0:pivotFunc.get();
         double shooterStrength = Math.abs(shooterFunc.get())<=0.15?0:shooterFunc.get();
         interfaceStrength = shooterStrength<0?shooterStrength:interfaceStrength;

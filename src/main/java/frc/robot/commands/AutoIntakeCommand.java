@@ -38,7 +38,7 @@ public class AutoIntakeCommand extends Command {
      */
     @Override
     public void execute() {
-        if (intaking) {
+        if (intaking && !shooterSubsystem.noteDetected()) {
             Pair<ChassisSpeeds, PhotonTrackedTarget> autoData = intakeSubsystem.getAutoChassisSpeeds();
             ChassisSpeeds autoChassisSpeeds = autoData.getFirst();
             PhotonTrackedTarget bestTarget = autoData.getSecond();
@@ -79,14 +79,14 @@ public class AutoIntakeCommand extends Command {
     public void startIntakeProccess(){
 
        intakeSubsystem.startIntake(1);
-       //shooterSubsystem.startShooter(-0.15);
-       shooterSubsystem.starInterface(0.25);
+       shooterSubsystem.startShooter(-0.15);
+       shooterSubsystem.starInterface(1);
     }
 
     public void stopIntakeProccess(){
         swerveSubsystem.stopSwerveModuleMotors();
          intakeSubsystem.stopIntake();
-         //shooterSubsystem.stopShooter();
+         shooterSubsystem.stopShooter();
          shooterSubsystem.stopInterface();
     }
 
@@ -123,15 +123,15 @@ public class AutoIntakeCommand extends Command {
          stopIntakeProccess();
         if (!interrupted) {
             RobotContainer.driverController.setRumble(GenericHID.RumbleType.kBothRumble, 0.25);
-            new Thread(()->{
-                try {
-                    //shooterSubsystem.starInterface(-0.25);
-                    Thread.sleep(500);
-                    //shooterSubsystem.stopInterface();
-                    RobotContainer.driverController.setRumble(GenericHID.RumbleType.kBothRumble, 0);
-                } catch(Exception e) {
-                }
-            });
+            // new Thread(()->{
+            //     try {
+            //         //shooterSubsystem.starInterface(-0.25);
+            //         Thread.sleep(500);
+            //         //shooterSubsystem.stopInterface();
+            //         RobotContainer.driverController.setRumble(GenericHID.RumbleType.kBothRumble, 0);
+            //     } catch(Exception e) {
+            //     }
+            // });
         }
     }
 }

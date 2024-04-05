@@ -104,4 +104,23 @@ public class InputsManager {
             return feedAim.get();
         }
     }
+    public static final class AutoPositioningInputsManager{
+        private final Supplier<Boolean> leftSpeaker,rightSpeaker,centerSpeaker;
+        public AutoPositioningInputsManager(Supplier<Boolean> leftSpeaker, Supplier<Boolean> rightSpeaker, Supplier<Boolean> centerSpeaker) {
+            this.leftSpeaker = leftSpeaker;
+            this.rightSpeaker = rightSpeaker;
+            this.centerSpeaker = centerSpeaker;
+        }
+        public boolean getLeftSpeaker() {
+            return leftSpeaker.get();
+        }
+
+        public boolean getRightSpeaker() {
+            return rightSpeaker.get();
+        }
+
+        public boolean getCenterSpeaker() {
+            return centerSpeaker.get();
+        }
+    }
 }

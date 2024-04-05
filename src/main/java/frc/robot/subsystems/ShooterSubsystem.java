@@ -75,8 +75,8 @@ public class ShooterSubsystem extends SubsystemBase {
 //        pivotMotor.setIdleMode(CANSparkBase.IdleMode.kBrake);
 //        pivotEncoder = pivotMotor.getEncoder();
 
-        interfaceMotor = new CANSparkMax(3,CANSparkLowLevel.MotorType.kBrushless);
-        interfaceMotor.restoreFactoryDefaults();
+        interfaceMotor = new CANSparkMax(3,CANSparkLowLevel.MotorType.kBrushed);
+        //interfaceMotor.restoreFactoryDefaults();
         interfaceMotor.setSmartCurrentLimit(20);
         interfaceMotor.setIdleMode(CANSparkBase.IdleMode.kBrake);
 
@@ -103,7 +103,7 @@ public class ShooterSubsystem extends SubsystemBase {
         pivotFeedforward = new ElevatorFeedforward(0, 0, 0);
     }
     public void starInterface(double speed){
-        interfaceMotor.set(-speed);
+        interfaceMotor.set(speed);
     }
     public void stopInterface(){
         interfaceMotor.stopMotor();

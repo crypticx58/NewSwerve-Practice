@@ -7,7 +7,13 @@ package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.path.GoalEndState;
 import com.pathplanner.lib.path.PathConstraints;
+import com.pathplanner.lib.path.PathPlannerPath;
+
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -19,12 +25,14 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.Constants.FieldPositioningConstants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.Utils.InputsManager.SwerveInputsManager;
 import frc.robot.Utils.InputsManager.VisionTargetingInputsManager;
 import frc.robot.commands.*;
 import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.OdometrySubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 
@@ -44,6 +52,7 @@ public class RobotContainer
     private final SwerveSubsystem swerveSystem = SwerveSubsystem.getInstance();
     private final IntakeSubsystem intakeSubsystem = IntakeSubsystem.getInstance();
     private final ShooterSubsystem shooterSubsystem = ShooterSubsystem.getInstance();
+    private final OdometrySubsystem odometrySubsystem = OdometrySubsystem.getInstance();
 
     // Replace with CommandPS4Controller or CommandJoystick if needed
     public static final XboxController driverController =
@@ -80,17 +89,35 @@ public class RobotContainer
 //        SmartDashboard.putNumber("gyroKP", 2.8);
 //        SmartDashboard.putNumber("gyroKI", 1.25);
 //        SmartDashboard.putNumber("gyroKD", 0.025);
-        NamedCommands.registerCommand("TurnShooterTowardsSpeaker", new TurnChassisTowardsPointCommand(VisionConstants.getSpeakerTargetPoseForAlliance().toPose2d().getTranslation().toVector(), true));
+        NamedCommands.registerCommand("TurnShooterTowardsSpeaker", new TurnChassisTowardsPointCommand(VisionConstants.BlueAllianceTargetPoses.Speaker.targetPose.toPose2d().getTranslation().toVector(), true));
 //        NamedCommands.registerCommand("PivotUntilFindSpeakerTargets", new PivotUntilFindTargetsCommand(20, 35,
 //                                                                     List.of(VisionConstants.getCenterSpeakerIdForAlliance(),
 //                                                                      VisionConstants.getOffsetSpeakerIdForAlliance())
 //                                                                      ));
+        //NamedCommands.registerCommand("PositionMiddleSpeaker", Commands.runOnce(()->AutoBuilder.pathfindToPose(FieldPositioningConstants.BlueAllianceSpeakerPoses.Middle.pose2d.rotateBy(new Rotation2d(180)), new PathConstraints(100, 400, Units.degreesToRadians(5400), Units.degreesToRadians(7200)),2,0).schedule(), swerveSystem));
+        // NamedCommands.registerCommand("PositionMiddleSpeaker", AutoBuilder.pathfindToPose(FieldPositioningConstants.BlueAllianceSpeakerPoses.Middle.pose2d.rotateBy(new Rotation2d(180)), 
+        // new PathConstraints(3, 4, Units.degreesToRadians(540), Units.degreesToRadians(720))));
+        // NamedCommands.registerCommand("PositionMiddleSpeaker",  
+        // Commands.run(
+        //         ()->
+        // AutoBuilder.pathfindToPose(FieldPositioningConstants.BlueAllianceSpeakerPoses.Middle.pose2d.rotateBy(new Rotation2d(180)), 
+        // new PathConstraints(3, 2, Units.degreesToRadians(100), Units.degreesToRadians(100)), 0, 0).schedule(), swerveSystem));
+
+        // NamedCommands.registerCommand("PositionMiddleSpeaker", 
+        // Commands.run(
+        //         ()-> AutoBuilder.followPath(
+        //                 new PathPlannerPath(
+        //                         PathPlannerPath.bezierFromPoses(odometrySubsystem.getPose(),
+        //                          FieldPositioningConstants.BlueAllianceSpeakerPoses.Middle.pose2d),
+        //                         new PathConstraints(0.5, 0.5, 0.05, 0.05), new GoalEndState(0, Rotation2d.fromDegrees(0))
+        //                         )
+        //                         ).schedule(), swerveSystem));
         NamedCommands.registerCommand("AutoIntake", new AutoIntakeCommand());
         NamedCommands.registerCommand("AutoAimAndShoot", new AutoAimAndShootCommand(
                 List.of(VisionConstants.getCenterSpeakerIdForAlliance()),
                 VisionConstants.getSpeakerTargetPoseForAlliance(),
                 2.5)
-        );
+        );//                            
         NamedCommands.registerCommand("PositionAndShootSpeaker", new SequentialCommandGroup(
                 new TurnChassisTowardsPointCommand(VisionConstants.getSpeakerTargetPoseForAlliance().toPose2d().getTranslation().toVector(), true),
                 new GoToSetRangeCommand(
@@ -104,7 +131,8 @@ public class RobotContainer
                         0.25
                 )
         ));
-        NamedCommands.registerCommand("Shoot", new ShootAtSetSpeedCommand(200_000));
+
+        NamedCommands.registerCommand("Shoot", new ShootAtSetSpeedCommand(100_000));
         NamedCommands.registerCommand("PathfindToWallNote", AutoBuilder.pathfindToPose(Constants.FieldConstants.getAllianceWallNotePose(), new PathConstraints(3,3, 1.75,3.5)));
         NamedCommands.registerCommand("PathfindToMiddleNote", AutoBuilder.pathfindToPose(Constants.FieldConstants.getAllianceMiddleNotePose(), new PathConstraints(3,3, 1.75,3.5)));
         NamedCommands.registerCommand("PathfindToCenterNote", AutoBuilder.pathfindToPose(Constants.FieldConstants.getAllianceCenterNotePose(), new PathConstraints(3,3, 1.75,3.5)));
@@ -127,10 +155,10 @@ public class RobotContainer
      */
     private void configureBindings() {
         new Trigger(driverController::getBButtonPressed).onTrue(new InstantCommand(swerveSystem::zeroHeading));
-        new Trigger(()->driverController.getRightTriggerAxis()<1).onTrue(Commands.runEnd(
+        new Trigger(()->driverController.getRightTriggerAxis()-driverController.getLeftTriggerAxis()>0).onTrue(Commands.runEnd(
                 ()->{
-                    intakeSubsystem.startIntake(driverController.getRightTriggerAxis());
-                    shooterSubsystem.starInterface(driverController.getRightTriggerAxis());
+                    intakeSubsystem.startIntake(driverController.getRightTriggerAxis()-driverController.getLeftTriggerAxis());
+                    //shooterSubsystem.starInterface(driverController.getRightTriggerAxis());
                     },
                 ()->{
                     intakeSubsystem.stopIntake();
@@ -162,7 +190,7 @@ public class RobotContainer
                         true
                 )
         );
-
+        
         
         new Trigger(mechanismsController::getLeftBumper).whileTrue(new AutoShooterCommand(swerveInputsManager, visionTargetingInputsManager));
         shooterSubsystem.setDefaultCommand(new ShooterControllerCommand(
@@ -216,6 +244,6 @@ public class RobotContainer
         
 
         return autoChooser.getSelected();
-        
+        //return Commands.run(()-> AutoBuilder.pathfindToPose(FieldPositioningConstants.BlueAllianceSpeakerPoses.Middle.pose2d.rotateBy(new Rotation2d(180)), new PathConstraints(3, 2, Units.degreesToRadians(100), Units.degreesToRadians(100)), 0, 0).schedule(), swerveSystem);
     }
 }

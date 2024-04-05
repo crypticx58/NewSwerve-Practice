@@ -38,8 +38,15 @@ public class ShootAtSetSpeedCommand extends Command {
     public void end(boolean interrupted) {
         shooterSubsystem.stopShooter();
         shooterSubsystem.stopInterface();
-        if (!interrupted) {
-            RobotContainer.mechanismsController.setRumble(GenericHID.RumbleType.kBothRumble, 0.25);
-        }
+        // if (!interrupted) {
+        //     RobotContainer.mechanismsController.setRumble(GenericHID.RumbleType.kBothRumble, 0.25);
+        //     new Thread(()->{
+        //         try {
+        //             Thread.sleep(500);
+        //             RobotContainer.mechanismsController.setRumble(GenericHID.RumbleType.kBothRumble, 0);
+        //         } catch(Exception e) {
+        //         }
+        //     });
+        // }
     }
 }

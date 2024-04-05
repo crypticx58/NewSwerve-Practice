@@ -9,6 +9,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.photonvision.PhotonCamera;
+import org.photonvision.common.hardware.VisionLEDMode;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
@@ -35,7 +36,9 @@ public class IntakeSubsystem extends SubsystemBase {
         intakeMotor.setIdleMode(CANSparkBase.IdleMode.kBrake);
 
         camera = new PhotonCamera("NoteDetector");
-        turnPIDController = new PIDController(0.15,0,0);
+        camera.setLED(VisionLEDMode.kOn);
+        turnPIDController = new PIDController(0.2,0.75,0);
+        turnPIDController.setIntegratorRange(0, 6);
         drivePIDController = new PIDController(0.25, 0, 0);
     }
     public void startIntake(double speed){
@@ -50,9 +53,11 @@ public class IntakeSubsystem extends SubsystemBase {
             PhotonTrackedTarget bestTarget = result.getBestTarget();
             ChassisSpeeds chassisSpeeds = new ChassisSpeeds((drivePIDController.calculate(bestTarget.getArea(), 100)/100)*3,
                     0,
-                    turnPIDController.calculate(bestTarget.getYaw()/30, 0)*1.5);
-            if (bestTarget.getArea() >= 2 && Math.abs(bestTarget.getYaw()) > 5) {
+                    turnPIDController.calculate(bestTarget.getYaw(), 1.5)/22.5*1.35);
+            if (bestTarget.getArea() >= 1.5 && Math.abs(bestTarget.getYaw()) > 5) {
                 chassisSpeeds.vxMetersPerSecond = 0;
+                chassisSpeeds.vyMetersPerSecond = 0;
+                System.out.println(chassisSpeeds);
             }
             return new Pair<ChassisSpeeds, PhotonTrackedTarget>(chassisSpeeds, bestTarget);
         } else {

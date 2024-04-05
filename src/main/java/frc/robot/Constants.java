@@ -12,6 +12,8 @@ import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
+import frc.robot.Constants.FieldConstants.BlueAllianceNotes;
+import frc.robot.Constants.FieldConstants.RedAllianceNotes;
 import frc.robot.subsystems.SwerveModuleConstants;
 
 import java.util.List;
@@ -98,7 +100,61 @@ public final class Constants {
     public static class IntakeConstants {
         public static final double noteIdleDistanceInches = 0.5;
     }
-    public  static class FieldConstants{
+    public static class FieldPositioningConstants{
+        public enum BlueAllianceSpeakerPoses{
+            Left(new Pose2d(0.8,4.25, Rotation2d.fromDegrees(120))),
+            Middle(new Pose2d(1.5,5.5, Rotation2d.fromDegrees(180))),
+            Right(new Pose2d(0.75,6.8, Rotation2d.fromDegrees(-120)));
+            public final Pose2d pose2d;
+            BlueAllianceSpeakerPoses(Pose2d pose){
+                this.pose2d = pose;
+            }
+        }
+        public enum RedAllianceSpeakerPoses{
+            Left(new Pose2d(15.75,6.8, Rotation2d.fromDegrees(-60))),
+            Middle(new Pose2d(15,5.55, Rotation2d.fromDegrees(0))),
+            Right(new Pose2d(15,4.25, Rotation2d.fromDegrees(60)));
+            public final Pose2d pose2d;
+            RedAllianceSpeakerPoses(Pose2d pose){
+                this.pose2d = pose;
+            }
+        }
+
+        public static Pose2d getAllianceSpeakerMiddlePose(){
+            Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
+            if (alliance.isPresent()){
+                if (alliance.get() == DriverStation.Alliance.Blue) {
+                    return BlueAllianceSpeakerPoses.Middle.pose2d;
+                } else {
+                    return RedAllianceSpeakerPoses.Middle.pose2d;
+                }
+            }
+            return BlueAllianceSpeakerPoses.Middle.pose2d;
+        }
+        public static Pose2d getAllianceSpeakerLeftPose(){
+            Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
+            if (alliance.isPresent()){
+                if (alliance.get() == DriverStation.Alliance.Blue) {
+                    return BlueAllianceSpeakerPoses.Left.pose2d;
+                } else {
+                    return RedAllianceSpeakerPoses.Left.pose2d;
+                }
+            }
+            return BlueAllianceSpeakerPoses.Left.pose2d;
+        }
+        public static Pose2d getAllianceSpeakerRightPose(){
+            Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
+            if (alliance.isPresent()){
+                if (alliance.get() == DriverStation.Alliance.Blue) {
+                    return BlueAllianceSpeakerPoses.Right.pose2d;
+                } else {
+                    return RedAllianceSpeakerPoses.Right.pose2d;
+                }
+            }
+            return BlueAllianceSpeakerPoses.Right.pose2d;
+        }
+    }
+    public static class FieldConstants{
         public enum BlueAllianceNotes{
             CenterNote(new Pose2d(2.9,4.1, Rotation2d.fromDegrees(0))),
             MiddleNote(new Pose2d(2.9,5.55, Rotation2d.fromDegrees(0))),

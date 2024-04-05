@@ -88,8 +88,8 @@ public class TurnChassisTowardsPointCommand extends Command {
     @Override
     public void end(boolean interrupted) {
         swerveSubsystem.stopSwerveModuleMotors();
-        if (!interrupted){
-            RobotContainer.driverController.setRumble(GenericHID.RumbleType.kBothRumble, 0.25);
-        }
+        // if (!interrupted){
+        //     RobotContainer.driverController.setRumble(GenericHID.RumbleType.kBothRumble, 0.25);
+        // }
     }
 }

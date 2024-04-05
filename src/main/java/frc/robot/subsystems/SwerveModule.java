@@ -30,7 +30,8 @@ public class SwerveModule {
     private final StatusSignal<Double> driveMotorRotations;
     private final StatusSignal<Double> driveMotorAppliedVoltage;
     private final PIDController turnPIDController;
-    //private final MotionMagicVelocityVoltage motionMagicVelocityVoltage;
+    //private final MotionMagicVelocityVoltage motionMa
+    private final PIDController drivePIDController;
     private Rotation2d lastAngle = new Rotation2d(0);
     private final TalonFXConfigurator configurator;
     private final VelocityVoltage driveMotorVelocity = new VelocityVoltage(0);
@@ -59,24 +60,24 @@ public class SwerveModule {
         //  motionMagicConfigs.MotionMagicAcceleration = 16000;
         //  motionMagicConfigs.MotionMagicJerk = 16000;
 
-        Slot0Configs slot0Configs = new Slot0Configs();
-        // //  slot0Configs.kS = 0.38446;
-        // //  slot0Configs.kV = 0.74459;
-        // //  slot0Configs.kA = 0.17773;
-         slot0Configs.kP = 2.35;
-         slot0Configs.kI = 0;
-         slot0Configs.kD = 0;
+        // Slot0Configs slot0Configs = new Slot0Configs();
+        // // //  slot0Configs.kS = 0.38446;
+        // // //  slot0Configs.kV = 0.74459;
+        // // //  slot0Configs.kA = 0.17773;
+        //  slot0Configs.kP = 2.35;
+        //  slot0Configs.kI = 0;
+        //  slot0Configs.kD = 0;
 
         // SmartDashboard.putNumber("KS", 0.25);
         // SmartDashboard.putNumber("KV", 1.5);
-        SmartDashboard.putNumber("KP", 2.35);
+        SmartDashboard.putNumber("KP",0.05);
         SmartDashboard.putNumber("KI", 0);
         SmartDashboard.putNumber("KD", 0);
 
         //  motionMagicVelocityVoltage = new MotionMagicVelocityVoltage(0);
         //  motionMagicVelocityVoltage.withSlot(0);
 
-        driveMotorConfigurator.apply(slot0Configs);
+        // driveMotorConfigurator.apply(slot0Configs);
         //  driveMotorConfigurator.apply(motionMagicConfigs);
 
         // Turn motor setup
@@ -91,6 +92,8 @@ public class SwerveModule {
         // PID turning controller
         turnPIDController = new PIDController(3.5, 0, 0);
         turnPIDController.enableContinuousInput(-Math.PI, Math.PI);
+
+        drivePIDController = new PIDController(0.05, 0,0);
 
         // Absolute Encoder
         absEncoder = new AnalogPotentiometer(swerveModuleConstants.absoluteEncoderId, 360, swerveModuleConstants.absoluteEncoderOffset);
@@ -128,14 +131,15 @@ public class SwerveModule {
         }
         //System.out.println(desiredState);
 
-        Slot0Configs slot0Configs = new Slot0Configs();
+        // Slot0Configs slot0Configs = new Slot0Configs();
         // slot0Configs.kS = SmartDashboard.getNumber("KS", 0);
         // slot0Configs.kV = SmartDashboard.getNumber("KV", 0);
-        slot0Configs.kP = SmartDashboard.getNumber("KP", 0);
-        slot0Configs.kI = SmartDashboard.getNumber("KI", 0);
-        slot0Configs.kD = SmartDashboard.getNumber("KD", 0);
+        // slot0Configs.kP = SmartDashboard.getNumber("KP", 0);
+        // slot0Configs.kI = SmartDashboard.getNumber("KI", 0);
+        // slot0Configs.kD = SmartDashboard.getNumber("KD", 0);
 
-        configurator.apply(slot0Configs);
+        // configurator.apply(slot0Configs);
+        drivePIDController.setP(SmartDashboard.getNumber("KP", 0));
 
         desiredState = SwerveModuleState.optimize(desiredState, Rotation2d.fromDegrees(getAngleDeg()));
         //System.out.println("Speed meters/sec: "+desiredState.speedMetersPerSecond+"||| Speed rotations/sec: "+convertMetersPerSec2RotationsPerSec(desiredState.speedMetersPerSecond));

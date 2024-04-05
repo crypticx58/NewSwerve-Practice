@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 0.9845059690119385,
-      "y": 7.007220871584601
+      "x": 2.377154468594652,
+      "y": 5.511956166769477
     },
-    "rotation": -179.44374777291932
+    "rotation": -179.2042764472608
   },
   "command": {
     "type": "sequential",
@@ -14,7 +14,7 @@
         {
           "type": "named",
           "data": {
-            "name": "Shoot"
+            "name": "PositionMiddleSpeaker"
           }
         }
       ]
